@@ -1,0 +1,10 @@
+#!/bin/bash
+#SBATCH -n 64
+#SBATCH -J pa1
+#SBATCH -t1:00:00
+
+for i in {0..5}; do
+    proc=$((2**i))
+    echo "Running with ${proc} processors:"
+    srun -n ${proc} ./pi_calc 1000000
+done

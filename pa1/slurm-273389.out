@@ -1,0 +1,34 @@
+---------------------------------------
+Begin Slurm Prolog: Feb-07-2024 08:51:28
+Job ID:    273389
+User ID:   zwang3444
+Account:   ece
+Job name:  pa1
+Partition: coc-cpu
+---------------------------------------
+Running with 1 processors:
+srun: warning: can't run 1 processes on 4 nodes, setting nnodes to 1
+3.138812000000, 0.041872
+Running with 2 processors:
+srun: warning: can't run 2 processes on 4 nodes, setting nnodes to 2
+3.143116000000, 0.021346
+Running with 4 processors:
+3.142324000000, 0.011784
+Running with 8 processors:
+3.142028000000, 0.007107
+Running with 16 processors:
+3.140220000000, 0.005378
+Running with 32 processors:
+3.137504000000, 0.005030
+---------------------------------------
+Begin Slurm Epilog: Feb-07-2024 08:51:31
+Job ID:        273389
+Array Job ID:  _4294967294
+User ID:       zwang3444
+Account:       ece
+Job name:      pa1
+Resources:     cpu=64,mem=256G,node=4
+Rsrc Used:     cput=00:03:12,vmem=8K,walltime=00:00:03,mem=0,energy_used=0
+Partition:     coc-cpu
+Nodes:         atl1-1-02-003-19-[1-2],atl1-1-02-003-20-1,atl1-1-02-004-15-2
+---------------------------------------

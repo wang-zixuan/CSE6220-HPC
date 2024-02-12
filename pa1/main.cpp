@@ -1,4 +1,3 @@
-#include <getopt.h>
 #include "mpi.h"
 #include <iostream>
 

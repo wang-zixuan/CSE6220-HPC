@@ -8,5 +8,4 @@ Below is the workflow of the program:
 3) The results are then aggregated to the processor with rank 0 by MPI_reduce to estimate pi.
 
 The machine we used for generating the results:
-
 We ran our code on PACE-ICE. We allocated 64 processes and then tested our algorithm by passing different parameters to srun (see job-sbatch). The output is in slurm-273389.out. PACE-ICE automatically allocated 4 nodes with 64 cpus for us.

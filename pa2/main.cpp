@@ -5,15 +5,28 @@
 #include <vector>
 #include <sstream>
 
-void local_transpose(std::vector<int>& matrix, int block_size, int n) {
-    int row_size = n, col_size = block_size / n;
-    for (int i = 0; i < row_size; i++) {
-        for (int j = i + 1; j < col_size; j++) {
-            int tmp = matrix[i * col_size + j];
-            matrix[i * col_size + j] = matrix[j * col_size + i];
-            matrix[j * col_size + i] = tmp;
+std::vector<int> pre_transpose(std::vector<int>& matrix, int block_size, int n) {
+    int row_size = block_size / n, col_size = n;
+    std::vector<int> transposed;
+    for (int j = 0; j < col_size; j++) {
+        for (int i = 0; i < row_size; i++) {
+            transposed.push_back(matrix[i * col_size + j]);
         }
     }
+
+    return transposed;
+}
+
+std::vector<int> post_transpose(std::vector<int>& matrix, int n, int size) {
+    int col_size = n / size;
+    std::vector<int> res;
+    for (int i = 0; i < col_size; i++) {
+        for (int j = 0; j < size; j++) {
+            res.insert(res.end(), matrix.begin() + j * col_size * col_size + col_size * i, matrix.begin() + j * col_size * col_size + col_size * (i + 1));
+        }
+    }
+
+    return res;
 }
 
 int HPC_Alltoall_A(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm) {
@@ -76,17 +89,17 @@ int main(int argc, char* argv[]) {
         start_time = MPI_Wtime();
     }
 
-    local_transpose(recv_scatter, block_size, n);
+    std::vector<int> recv_scatter_transposed = pre_transpose(recv_scatter, block_size, n);
     std::vector<int> recv_alltoall(block_size);
 
     // all to all communication
     if (alg_name == 'a') {
         // implement arbitrary all-to-all here
-        HPC_Alltoall_A(recv_scatter.data(), block_size, MPI_INT, recv_alltoall.data(), block_size, MPI_INT, MPI_COMM_WORLD);
+        HPC_Alltoall_A(recv_scatter_transposed.data(), block_size / size, MPI_INT, recv_alltoall.data(), block_size / size, MPI_INT, MPI_COMM_WORLD);
     } else if (alg_name == 'h') {
-        HPC_Alltoall_H(recv_scatter.data(), block_size, MPI_INT, recv_alltoall.data(), block_size, MPI_INT, MPI_COMM_WORLD);
+        HPC_Alltoall_H(recv_scatter_transposed.data(), block_size / size, MPI_INT, recv_alltoall.data(), block_size / size, MPI_INT, MPI_COMM_WORLD);
     } else {
-        MPI_Alltoall(recv_scatter.data(), block_size, MPI_INT, recv_alltoall.data(), block_size, MPI_INT, MPI_COMM_WORLD);
+        MPI_Alltoall(recv_scatter_transposed.data(), block_size / size, MPI_INT, recv_alltoall.data(), block_size / size, MPI_INT, MPI_COMM_WORLD);
     }
 
     // timer ends here
@@ -94,8 +107,10 @@ int main(int argc, char* argv[]) {
         end_time = MPI_Wtime();
     }
 
+    std::vector<int> recv_alltoall_transposed = post_transpose(recv_alltoall, n, size);
+
     // gather
-    MPI_Gather(recv_alltoall.data(), block_size, MPI_INT, arr.data(), block_size, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Gather(recv_alltoall_transposed.data(), block_size, MPI_INT, arr.data(), block_size, MPI_INT, 0, MPI_COMM_WORLD);
 
     // store result into txt file
     if (rank == 0) {

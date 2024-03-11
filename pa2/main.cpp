@@ -4,6 +4,8 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <cmath>
+#include <cstring>
 
 std::vector<int> pre_transpose(std::vector<int>& matrix, int block_size, int n) {
     int row_size = block_size / n, col_size = n;
@@ -30,12 +32,61 @@ std::vector<int> post_transpose(std::vector<int>& matrix, int n, int size) {
 }
 
 int HPC_Alltoall_A(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm) {
+    // sendcount = block_size / size
 
+    return 0;
 }
 
 
 int HPC_Alltoall_H(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm) {
+    int size, rank;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    int buffer_size = sendcount * size;
+    int d = log2(size);
+
+    int flip = 1 << (d - 1);
+    int* sendbuf_int = new int[buffer_size];
+    const int* sendbuf_int_cast = static_cast<const int*>(sendbuf);
+    for (int i = 0; i < buffer_size; i++) {
+        sendbuf_int[i] = sendbuf_int_cast[i];
+    }
     
+    int* recvbuf_int = static_cast<int*>(recvbuf);  // Cast to int*
+
+    std::vector<int> local_send_buf(buffer_size / 2);
+    for (int j = d - 1; j >= 0; j--) {
+        int target_rank = rank ^ flip;
+        int comm_size = buffer_size / (1 << (d - j));
+        int transfer_time = 1 << (d - 1 - j);
+        int start_idx = 0;
+        for (int i = 0; i < transfer_time; i++) {
+            int offset = (target_rank & flip) * sendcount + buffer_size / transfer_time * i;
+            for (int k = start_idx; k < start_idx + comm_size; k++) {
+                local_send_buf[k] = sendbuf_int[offset + k - start_idx];
+            }
+            start_idx += comm_size;
+        }
+
+        MPI_Send(local_send_buf.data(), buffer_size / 2, sendtype, target_rank, 0, comm);
+        MPI_Status status;
+        MPI_Recv(local_send_buf.data(), buffer_size / 2, sendtype, target_rank, 0, comm, &status);
+        start_idx = 0;
+        // put data from local send buf to send buffer (right position)
+        for (int i = 0; i < transfer_time; i++) {
+            int offset = (target_rank & flip) * sendcount + buffer_size / transfer_time * i;
+            for (int k = 0; k < comm_size; k++) {
+                sendbuf_int[offset + k] = local_send_buf[start_idx + k];
+            }
+            start_idx += comm_size;
+        }
+
+        flip = flip >> 1;
+    }
+
+    std::copy(sendbuf_int, sendbuf_int + buffer_size, recvbuf_int);
+
+    return 0;
 }
 
 int main(int argc, char* argv[]) {
@@ -49,13 +100,16 @@ int main(int argc, char* argv[]) {
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-
     n = std::stod(argv[4]);
-    // a: HPC_Alltoall_A; h: HPC_Alltoall_H, m: MPI_Alltoall
+    // command line argument input: 
+    //         a: HPC_Alltoall_A; 
+    //         h: HPC_Alltoall_H, 
+    //         m: MPI_Alltoall
     alg_name = argv[3][0];
 
     int block_size = n * n / size;
 
+    // arr is to store matrix
     std::vector<int> arr;
 
     if (rank == 0) {

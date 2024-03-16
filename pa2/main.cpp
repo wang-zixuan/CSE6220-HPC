@@ -47,20 +47,29 @@ int HPC_Alltoall_H(const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
 
     int flip = 1 << (d - 1);
     int* sendbuf_int = new int[buffer_size];
+    // cast to int* since we can't retreive data in void* datatype
     const int* sendbuf_int_cast = static_cast<const int*>(sendbuf);
+    // copy data from void* sendbuf to int* sendbuf
     for (int i = 0; i < buffer_size; i++) {
         sendbuf_int[i] = sendbuf_int_cast[i];
     }
     
-    int* recvbuf_int = static_cast<int*>(recvbuf);  // Cast to int*
+    int* recvbuf_int = static_cast<int*>(recvbuf);
 
+    // the length of send buf is always buffer_size / 2 in every round
     std::vector<int> local_send_buf(buffer_size / 2);
     for (int j = d - 1; j >= 0; j--) {
+        // compute target rank by flipping the j-th bit
         int target_rank = rank ^ flip;
+        // For example, if we have 8 processors, 
+        // in the first round, rank 0 will send last 4 blocks of sendbuf to rank 4, rank 4 will send first 4 blocks to rank 0
+        // in the second round, rank 0 will send block 2, 3, 6, 7 to rank 2
+        // in the third round, rank 0 will send block 1, 3, 5, 7 to rank 1
         int comm_size = buffer_size / (1 << (d - j));
         int transfer_time = 1 << (d - 1 - j);
         int start_idx = 0;
         for (int i = 0; i < transfer_time; i++) {
+            // get the (start index, start index + comm_size) elements of the sendbuf which needs to be sent to the target rank
             int offset = (target_rank & flip) * sendcount + buffer_size / transfer_time * i;
             for (int k = start_idx; k < start_idx + comm_size; k++) {
                 local_send_buf[k] = sendbuf_int[offset + k - start_idx];
@@ -68,11 +77,12 @@ int HPC_Alltoall_H(const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
             start_idx += comm_size;
         }
 
+        // send and receive between current rank and target rank
         MPI_Send(local_send_buf.data(), buffer_size / 2, sendtype, target_rank, 0, comm);
         MPI_Status status;
         MPI_Recv(local_send_buf.data(), buffer_size / 2, sendtype, target_rank, 0, comm, &status);
         start_idx = 0;
-        // put data from local send buf to send buffer (right position)
+        // put data from local send buf to send buffer
         for (int i = 0; i < transfer_time; i++) {
             int offset = (target_rank & flip) * sendcount + buffer_size / transfer_time * i;
             for (int k = 0; k < comm_size; k++) {
@@ -81,9 +91,11 @@ int HPC_Alltoall_H(const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
             start_idx += comm_size;
         }
 
+        // next round
         flip = flip >> 1;
     }
 
+    // copy data from send buf to recv buf
     std::copy(sendbuf_int, sendbuf_int + buffer_size, recvbuf_int);
 
     return 0;
@@ -135,7 +147,7 @@ int main(int argc, char* argv[]) {
     // receive buffer for scatter
     std::vector<int> recv_scatter(block_size);
 
-    // scatter
+    // scatter array data to all processors
     MPI_Scatter(arr.data(), block_size, MPI_INT, recv_scatter.data(), block_size, MPI_INT, 0, MPI_COMM_WORLD);
 
     // timer begins here
@@ -163,7 +175,7 @@ int main(int argc, char* argv[]) {
 
     std::vector<int> recv_alltoall_transposed = post_transpose(recv_alltoall, n, size);
 
-    // gather
+    // gather data from all processors to rank 0 processor
     MPI_Gather(recv_alltoall_transposed.data(), block_size, MPI_INT, arr.data(), block_size, MPI_INT, 0, MPI_COMM_WORLD);
 
     // store result into txt file

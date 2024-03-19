@@ -4,21 +4,14 @@
 #SBATCH -t1:00:00
 
 modes=("a" "h" "m")
-sizes_8=(24 120 600 3000 15000)
-sizes_16=(32 160 800 4000 20000)
+procs=(8 16)
+sizes=(160 320 640 1280 2560 5120)
 
-# p = 8
-for mode in "${modes[@]}"; do
-    for size in "${sizes_8[@]}"; do
-        echo "Running srun -n 8 ./transpose matrix-${size}.txt transposed.txt $mode $size"
-        srun -n 8 ./transpose matrix-${size}.txt transposed.txt $mode $size
-    done
-done
-
-# p = 16
-for mode in "${modes[@]}"; do
-    for size in "${sizes_16[@]}"; do
-        echo "Running srun -n 16 ./transpose matrix-${size}.txt transposed.txt $mode $size"
-        srun -n 16 ./transpose matrix-${size}.txt transposed.txt $mode $size
+for proc in "${procs[@]}"; do
+    for mode in "${modes[@]}"; do
+        for size in "${sizes[@]}"; do
+            echo "Running srun -n $proc ./transpose matrix-${size}.txt transposed.txt $mode $size"
+            srun -n ${proc} ./transpose matrix-${size}.txt transposed.txt $mode $size
+        done
     done
 done

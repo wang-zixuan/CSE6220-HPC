@@ -98,10 +98,14 @@ int HPC_Alltoall_H(const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
             start_idx += comm_size;
         }
 
-        // send and receive between current rank and target rank
-        MPI_Send(local_send_buf.data(), buffer_size / 2, sendtype, target_rank, 0, comm);
+        MPI_Request send_request, recv_request;
         MPI_Status status;
-        MPI_Recv(local_send_buf.data(), buffer_size / 2, sendtype, target_rank, 0, comm, &status);
+
+        MPI_Isend(local_send_buf.data(), buffer_size / 2, sendtype, target_rank, 0, comm, &send_request);
+        MPI_Irecv(local_send_buf.data(), buffer_size / 2, sendtype, target_rank, 0, comm, &recv_request);
+        MPI_Wait(&send_request, &status);
+        MPI_Wait(&recv_request, &status);
+
         start_idx = 0;
         // put data from local send buf to send buffer
         for (int i = 0; i < transfer_time; i++) {

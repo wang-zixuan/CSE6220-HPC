@@ -1,0 +1,24 @@
+#!/bin/bash
+#SBATCH -n 16
+#SBATCH -J pa2
+#SBATCH -t1:00:00
+
+modes=("a" "h" "m")
+sizes_8=(24 120 600 3000 15000)
+sizes_16=(32 160 800 4000 20000)
+
+# p = 8
+for mode in "${modes[@]}"; do
+    for size in "${sizes_8[@]}"; do
+        echo "Running srun -n 8 ./transpose matrix-${size}.txt transposed.txt $mode $size"
+        srun -n 8 ./transpose matrix-${size}.txt transposed.txt $mode $size
+    done
+done
+
+# p = 16
+for mode in "${modes[@]}"; do
+    for size in "${sizes_16[@]}"; do
+        echo "Running srun -n 16 ./transpose matrix-${size}.txt transposed.txt $mode $size"
+        srun -n 16 ./transpose matrix-${size}.txt transposed.txt $mode $size
+    done
+done

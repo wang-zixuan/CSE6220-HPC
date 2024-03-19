@@ -32,8 +32,29 @@ std::vector<int> post_transpose(std::vector<int>& matrix, int n, int size) {
 }
 
 int HPC_Alltoall_A(const void *sendbuf, int sendcount, MPI_Datatype sendtype, void *recvbuf, int recvcount, MPI_Datatype recvtype, MPI_Comm comm) {
-    // sendcount = block_size / size
+    int process_rank, num_processes;
+    MPI_Comm_rank(comm, &process_rank);
+    MPI_Comm_size(comm, &num_processes);
 
+    std::vector<MPI_Request> request_array(2 * (num_processes - 1));
+    std::vector<MPI_Status> status_array(2 * (num_processes - 1));
+    std::memcpy(recvbuf + process_rank * recvcount, 
+                sendbuf + process_rank * sendcount, sendcount * sizeof(int));
+    
+    int total_requests = 0;
+    
+    for (int offset = 1; offset < num_processes; ++offset) {
+        int dest_process = (process_rank + offset) % num_processes;
+        int source_process = (process_rank - offset + num_processes) % num_processes;
+        MPI_Isend(sendbuf + dest_process * sendcount, sendcount, sendtype,
+                  dest_process, 0, comm, &request_array[total_requests]);
+        MPI_Irecv(recvbuf + source_process * recvcount, recvcount, recvtype,
+                  source_process, 0, comm, &request_array[total_requests + 1]);
+        total_requests += 2;
+    }
+
+    MPI_Waitall(total_requests, request_array.data(), status_array.data());
+    
     return 0;
 }
 

@@ -92,8 +92,13 @@ Different matrix sizes are being tested for the three different algorithms, the 
 
 
 ### Empirical analysis, observations, and conclusion (8 pts)
+Both for 8 and 16 processors, we can observe.
+#### Increase with matrix size: 
+-- As the matrix size increases, all three algorithms exhibit an increase in execution time, which makes sense given the increased volume of data that needs to be transferred and processed. This non-linear scaling behavior is eloquently demonstrated by the plot's logarithmic scales for both axes.
+-- The execution times of the algorithms differ very little at smaller matrix sizes (160 to 640). However, notable variations appear as the matrix size grows. While the MPI all-to-all (m) and arbitrary all-to-all (a) algorithms perform similarly at all sizes, the hypercubic all-to-all (h) algorithm typically executes more slowly, especially at larger matrix sizes. This shows that the other two methods scale better than the hypercubic approach, which might involve more complicated communication patterns or overheads.
+-- The MPI all-to-all algorithm performs marginally better than the arbitrary approach, even though the execution times of the two algorithms are similar (a and m). This might be the result of the MPI library's optimization for data communication, indicating that using MPI's built-in techniques could boost efficiency for large-scale data communication.
+-- Unexpected outcomes: The noteworthy finding in the given data is the hypercubic algorithm (h)'srelativeperformance at larger scales; there are no overtly irregular results. Because hypercubic and other specialized algorithms have more structured communication patterns, one might expect them to perform better. On systems with a limited number of processors (8 in this case), however, the overhead of organizing these patterns may exceed their theoretical communication efficiency.
 
-(Try to come up with some important observations on your program. We are not asking that specific questions be answered but you are expected to think on your own, experiment and show the conclusions along with the evidence that led you to reach the conclusions. Any irregular or unexpected results should also be noted and explained why it is unavoidable)
 
 ## Contributions of each team member
 | Team member | Contribution |

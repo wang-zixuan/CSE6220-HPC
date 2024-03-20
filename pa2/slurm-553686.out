@@ -1,0 +1,92 @@
+---------------------------------------
+Begin Slurm Prolog: Mar-20-2024 12:56:22
+Job ID:    553686
+User ID:   zwang3444
+Account:   ece
+Job name:  pa2
+Partition: coc-cpu
+---------------------------------------
+Running srun -n 8 ./transpose matrix-160.txt transposed.txt a 160
+0.000118
+Running srun -n 8 ./transpose matrix-320.txt transposed.txt a 320
+0.001253
+Running srun -n 8 ./transpose matrix-640.txt transposed.txt a 640
+0.003189
+Running srun -n 8 ./transpose matrix-1280.txt transposed.txt a 1280
+0.008252
+Running srun -n 8 ./transpose matrix-2560.txt transposed.txt a 2560
+0.029195
+Running srun -n 8 ./transpose matrix-5120.txt transposed.txt a 5120
+0.164851
+Running srun -n 8 ./transpose matrix-160.txt transposed.txt h 160
+0.000162
+Running srun -n 8 ./transpose matrix-320.txt transposed.txt h 320
+0.000775
+Running srun -n 8 ./transpose matrix-640.txt transposed.txt h 640
+0.002782
+Running srun -n 8 ./transpose matrix-1280.txt transposed.txt h 1280
+0.010888
+Running srun -n 8 ./transpose matrix-2560.txt transposed.txt h 2560
+0.044281
+Running srun -n 8 ./transpose matrix-5120.txt transposed.txt h 5120
+0.222264
+Running srun -n 8 ./transpose matrix-160.txt transposed.txt m 160
+0.000914
+Running srun -n 8 ./transpose matrix-320.txt transposed.txt m 320
+0.001241
+Running srun -n 8 ./transpose matrix-640.txt transposed.txt m 640
+0.002923
+Running srun -n 8 ./transpose matrix-1280.txt transposed.txt m 1280
+0.007609
+Running srun -n 8 ./transpose matrix-2560.txt transposed.txt m 2560
+0.028734
+Running srun -n 8 ./transpose matrix-5120.txt transposed.txt m 5120
+0.163553
+Running srun -n 16 ./transpose matrix-160.txt transposed.txt a 160
+0.001608
+Running srun -n 16 ./transpose matrix-320.txt transposed.txt a 320
+0.000305
+Running srun -n 16 ./transpose matrix-640.txt transposed.txt a 640
+0.000843
+Running srun -n 16 ./transpose matrix-1280.txt transposed.txt a 1280
+0.005892
+Running srun -n 16 ./transpose matrix-2560.txt transposed.txt a 2560
+0.016120
+Running srun -n 16 ./transpose matrix-5120.txt transposed.txt a 5120
+0.071288
+Running srun -n 16 ./transpose matrix-160.txt transposed.txt h 160
+0.000277
+Running srun -n 16 ./transpose matrix-320.txt transposed.txt h 320
+0.000430
+Running srun -n 16 ./transpose matrix-640.txt transposed.txt h 640
+0.001478
+Running srun -n 16 ./transpose matrix-1280.txt transposed.txt h 1280
+0.005755
+Running srun -n 16 ./transpose matrix-2560.txt transposed.txt h 2560
+0.023941
+Running srun -n 16 ./transpose matrix-5120.txt transposed.txt h 5120
+0.108595
+Running srun -n 16 ./transpose matrix-160.txt transposed.txt m 160
+0.001591
+Running srun -n 16 ./transpose matrix-320.txt transposed.txt m 320
+0.000246
+Running srun -n 16 ./transpose matrix-640.txt transposed.txt m 640
+0.000845
+Running srun -n 16 ./transpose matrix-1280.txt transposed.txt m 1280
+0.005225
+Running srun -n 16 ./transpose matrix-2560.txt transposed.txt m 2560
+0.016170
+Running srun -n 16 ./transpose matrix-5120.txt transposed.txt m 5120
+0.073887
+---------------------------------------
+Begin Slurm Epilog: Mar-20-2024 12:57:18
+Job ID:        553686
+Array Job ID:  _4294967294
+User ID:       zwang3444
+Account:       ece
+Job name:      pa2
+Resources:     cpu=16,mem=64G,node=3
+Rsrc Used:     cput=00:15:12,vmem=4560K,walltime=00:00:57,mem=4552K,energy_used=0
+Partition:     coc-cpu
+Nodes:         atl1-1-02-003-19-[1-2],atl1-1-02-003-20-1
+---------------------------------------

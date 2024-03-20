@@ -60,7 +60,26 @@ This function generates a new vector res to hold the transposed matrix, much lik
 
 ### $p = 16$
 
-? problem size: 
+| Matrix Size | Algorithm Type | Time      |
+|-------------|----------------|-----------|
+|160	|a	|0.001608|
+|320	|a	|0.000305|
+|640	|a	|0.000843|
+|1280	|a	|0.005892|
+|2560	|a	|0.016120|
+|5120	|a	|0.071288|
+|160	|h	|0.000277|
+|320	|h	|0.000430|
+|640	|h	|0.001478|
+|1280	|h	|0.005755|
+|2560	|h	|0.023941|
+|5120	|h	|0.108595|
+|160	|m	|0.001591|
+|320	|m	|0.000246|
+|640	|m	|0.000845|
+|1280	|m	|0.005225|
+|2560	|m	|0.016170|
+|5120	|m	|0.073887|
 
 ### Empirical analysis, observations, and conclusion (8 pts)
 

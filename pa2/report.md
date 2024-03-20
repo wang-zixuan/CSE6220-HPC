@@ -87,6 +87,10 @@ Different matrix sizes are being tested for the three different algorithms, the 
 |2560	|m	|0.016170|
 |5120	|m	|0.073887|
 
+
+![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/8b56c0f4-9fc8-406f-bc4f-812e3dd90096)
+
+
 ### Empirical analysis, observations, and conclusion (8 pts)
 
 (Try to come up with some important observations on your program. We are not asking that specific questions be answered but you are expected to think on your own, experiment and show the conclusions along with the evidence that led you to reach the conclusions. Any irregular or unexpected results should also be noted and explained why it is unavoidable)

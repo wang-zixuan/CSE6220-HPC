@@ -36,25 +36,34 @@ int HPC_Alltoall_A(const void *sendbuf, int sendcount, MPI_Datatype sendtype, vo
     MPI_Comm_rank(comm, &process_rank);
     MPI_Comm_size(comm, &num_processes);
 
+    int sendtype_size, recvtype_size;
+    MPI_Type_size(sendtype, &sendtype_size);
+    MPI_Type_size(recvtype, &recvtype_size);
+
     std::vector<MPI_Request> request_array(2 * (num_processes - 1));
     std::vector<MPI_Status> status_array(2 * (num_processes - 1));
-    std::memcpy(recvbuf + process_rank * recvcount, 
-                sendbuf + process_rank * sendcount, sendcount * sizeof(int));
-    
+
+    std::memcpy(static_cast<char *>(recvbuf) + process_rank * recvcount * recvtype_size, 
+                static_cast<const char *>(sendbuf) + process_rank * sendcount * sendtype_size, 
+                sendcount * sendtype_size);
+
     int total_requests = 0;
-    
+
     for (int offset = 1; offset < num_processes; ++offset) {
         int dest_process = (process_rank + offset) % num_processes;
         int source_process = (process_rank - offset + num_processes) % num_processes;
-        MPI_Isend(sendbuf + dest_process * sendcount, sendcount, sendtype,
+
+        MPI_Isend(static_cast<const char *>(sendbuf) + dest_process * sendcount * sendtype_size, sendcount, sendtype, 
                   dest_process, 0, comm, &request_array[total_requests]);
-        MPI_Irecv(recvbuf + source_process * recvcount, recvcount, recvtype,
+
+        MPI_Irecv(static_cast<char *>(recvbuf) + source_process * recvcount * recvtype_size, recvcount, recvtype, 
                   source_process, 0, comm, &request_array[total_requests + 1]);
+
         total_requests += 2;
     }
 
     MPI_Waitall(total_requests, request_array.data(), status_array.data());
-    
+
     return 0;
 }
 

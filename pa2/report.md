@@ -33,7 +33,7 @@ The transposed matrix is stored in additional space. As each element of the inpu
 This function generates a new vector res to hold the transposed matrix, much like pre_transpose does. The amount of space needed for res is O(size * col_size * col_size), which is proportional to the number of elements in the input matrix. The space complexity reduces to O(n * col_size) = O(n^2 / size) since n = size * col_size. This function has two nested loops that run size times and col_size times, respectively, in terms of time complexity. A call to vector::insert, which inserts k elements in O(k) time, is made inside the inner loop. A time complexity of O(size * col_size^2) results from the handling of col_size elements by each insert operation, and size such operations for each iteration of the outer loop. Once more, this simplifies to O(n * col_size) = O(n^2 / size) since n = size * col_size.
 ## Evaluate the performance with varying input matrix sizes
 
-(Fixing the number of processors to 8 and 16, plot the runtimes of the three approaches over different matrix sizes and describe your observations of the results. 2 plots, 8 pts)
+Different matrix sizes are being tested for the three different algorithms, the sizes are 160, 320, 640, 1280, 2560, 5120.
 
 ### $p = 8$
 

@@ -93,15 +93,21 @@ Different matrix sizes are being tested for the three different algorithms, the 
 
 ### Empirical analysis, observations, and conclusion (8 pts)
 Both for 8 and 16 processors, we can observe.
-#### Increase with matrix size: 
+#### Key observations: 
 -- As the matrix size increases, all three algorithms exhibit an increase in execution time, which makes sense given the increased volume of data that needs to be transferred and processed. This non-linear scaling behavior is eloquently demonstrated by the plot's logarithmic scales for both axes.
 
 -- The execution times of the algorithms differ very little at smaller matrix sizes (160 to 640). However, notable variations appear as the matrix size grows. While the MPI all-to-all (m) and arbitrary all-to-all (a) algorithms perform similarly at all sizes, the hypercubic all-to-all (h) algorithm typically executes more slowly, especially at larger matrix sizes. This shows that the other two methods scale better than the hypercubic approach, which might involve more complicated communication patterns or overheads.
 
 -- The MPI all-to-all algorithm performs marginally better than the arbitrary approach, even though the execution times of the two algorithms are similar (a and m). This might be the result of the MPI library's optimization for data communication, indicating that using MPI's built-in techniques could boost efficiency for large-scale data communication.
 
--- Unexpected outcomes: The noteworthy finding in the given data is the hypercubic algorithm (h)'srelativeperformance at larger scales; there are no overtly irregular results. Because hypercubic and other specialized algorithms have more structured communication patterns, one might expect them to perform better. On systems with a limited number of processors (8 in this case), however, the overhead of organizing these patterns may exceed their theoretical communication efficiency.
+-- Unexpected outcomes: The noteworthy finding in the given data is the hypercubic algorithm (h)'s relativeperformance at larger scales; there are no overtly irregular results. Because hypercubic and other specialized algorithms have more structured communication patterns, one might expect them to perform better. On systems with a limited number of processors (8 in this case), however, the overhead of organizing these patterns may exceed their theoretical communication efficiency. One explanation for the observed slower speed of the hypercubic all-to-all (h) approach compared to the arbitrary (a) approach, particularly at larger scales, could be the extra computational overhead associated with the hypercubic method. In particular, each round of communication in the hypercubic approach adds an extra $O(n)$ computational overhead for data movement. This means that additional time is needed to move or rearrange data in order to follow the hypercubic communication pattern, on top of the time needed for data transfer itself. 
 
+#### Comparing 8 and 16 processor runtimes: 
+Analyzing the execution time trends of programs running on eight and sixteen processors, respectively, reveals several important conclusions. In general, all three algorithms (a for arbitrary, h for hypercubic, and m for MPI) show a notable reduction in execution time when the number of processors is doubled from 8 to 16. The benefits of parallel processing are illustrated by this improvement, which shows how multiplying the number of processors can significantly speed up the calculation, particularly when working with large matrix sizes.
+
+The performance benefit of adding processors is especially noticeable for the MPI all-to-all (m) and arbitrary all-to-all (a) communication strategies at larger matrix sizes. This indicates that these algorithms are well-suited to increasing processor counts, making use of the extra capacity to shorten execution times overall. Although the hypercubic (h) algorithm performs better when there are more processors, it still lags behind the other two algorithms in terms of execution time reduction. This could be because the hypercubic (h) algorithm has inherent additional computational overhead for data movement, which may not scale as well as the number of processors.
+
+In conclusion, the algorithms' scalability is demonstrated by the increase in processor count from 8 to 16, all of which show shorter execution times but varied degrees of efficiency gains. This comparison emphasizes how, in order to fully utilize the potential of higher processor counts, parallel algorithms must be optimized for both computation and communication.
 
 ## Contributions of each team member
 | Team member | Contribution |

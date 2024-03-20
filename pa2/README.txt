@@ -55,9 +55,19 @@ Based on the current process rank and an offset, the send operation's destinatio
 To start a non-blocking send to the calculated destination process, MPI_Isend is called.
 To start a non-blocking receive from the calculated source process, MPI_Irecv is called right away.
 MPI request objects kept in an array are used to track both operations, enabling the function to wait for all operations to finish before returning.
+
+The primary logic of the function consists of each process in the MPI communicator sending data to and receiving data from every other process. The source and destination processes for sending and receiving data for a given process are chosen based on the process's rank and an offset, which can be anything from one to the total number of processes minus one. These source and destination ranks are computed via the modulo operation, which essentially implements circular indexing.
+
 Completion: The function uses MPI_Waitall to wait for each send and receive operation to finish after scheduling them all. This call ensures that all communication is completed before the function returns by blocking the calling process until all designated non-blocking operations have been completed.
 
 1.3 Hypercubic all-to-all explanation
+-- Functional Logic: A parallel all-to-all communication algorithm optimized for systems with a power-of-two number of processors is implemented by this function. This utilizes the hypercube communication pattern by operating in a series of rounds that each cut the distance between communicating pairs of processes in half. 
+
+-- Communication Steps: By flipping a particular bit in its rank, a process determines its target partner for data exchange in each round.
+After that, it chooses which bits of its send buffer to share with the recipient. To ensure that each process sends different portions of its data to different processes over the rounds, the data selection is based on the current round and the rank of the target process.
+Blocking sends and receives (MPI_Send and MPI_Recv) are used to send and receive data, guaranteeing that all data is exchanged before moving on to the next round.
+
+-- With data exchange enabled by blocking sends and receives to ensure completion before going to the next round, this method guarantees data distribution by choosing different portions of the send buffer based on the round and partner's rank. After every round is finished, the function copies all of the data that has accumulated in the send buffer to the receive buffer to complete communication and guarantee that every process receives data from every other process. The algorithm ends with the final data being transferred to the specified recvbuf, allowing the result to be processed further.
 
 2. Machine used for generating the results
 

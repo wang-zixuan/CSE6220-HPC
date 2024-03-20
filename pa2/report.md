@@ -59,7 +59,8 @@ Different matrix sizes are being tested for the three different algorithms, the 
 |5120	|m	|0.163553|
 
 
-![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/25e188c7-095c-4000-8080-210afe04f377)
+![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/88a0f0db-2806-4445-9360-b8fd0e504e38)
+
 
 
 

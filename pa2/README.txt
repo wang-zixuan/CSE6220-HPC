@@ -43,6 +43,19 @@ So we post-process (re-order) data here, and rank 0 will store [A, E, I, M, B, F
 To get the final results, we gather all the data into rank 0 to a 1D array and store data into a txt file in a row-major way.
 
 1.2 Arbitrary all-to-all explanation
+-- Function Logic: The HPC_Alltoall_A function uses MPI's immediate send (MPI_Isend) and receive (MPI_Irecv) operations to carry out all-to-all communication in a non-blocking manner. The logic of the function develops in multiple stages: 
+
+-- Initialization: The function starts by counting the number of processes in the given communicator (comm) and the rank of the calling process.
+
+-- Local Copy: The function copies some memory locally before initiating the communication. The data meant for the process is copied from the send buffer to the receive buffer in this step. This is required because every process sends data to itself in the all-to-all communication pattern.
+
+Communication Loop: The function then enters a loop where it schedules non-blocking sends and receives for each other process in the communicator. For each pair of operations (send and receive):
+
+Based on the current process rank and an offset, the send operation's destination and the receive operation's source are determined. This computation guarantees that every process exchanges information with every other process precisely once.
+To start a non-blocking send to the calculated destination process, MPI_Isend is called.
+To start a non-blocking receive from the calculated source process, MPI_Irecv is called right away.
+MPI request objects kept in an array are used to track both operations, enabling the function to wait for all operations to finish before returning.
+Completion: The function uses MPI_Waitall to wait for each send and receive operation to finish after scheduling them all. This call ensures that all communication is completed before the function returns by blocking the calling process until all designated non-blocking operations have been completed.
 
 1.3 Hypercubic all-to-all explanation
 

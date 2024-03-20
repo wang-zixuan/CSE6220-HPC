@@ -37,7 +37,8 @@ This function generates a new vector res to hold the transposed matrix, much lik
 
 ### $p = 8$
 
-| Matrix Size| Algorithm Type | Time|
+| Matrix Size | Algorithm Type | Time      |
+|-------------|----------------|-----------|
 |160	|a|	0.000118|
 |320	|a	|0.001253|
 |640	|a	|0.003189|

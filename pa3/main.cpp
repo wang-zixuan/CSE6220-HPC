@@ -145,8 +145,6 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    
-
     // ring topology, rotate B (n - 1) times
     // recv_buffer becomes send_buffer now
     int source = (rank - 1 + size) % size;
@@ -175,8 +173,6 @@ int main(int argc, char* argv[]) {
         send_buffer_ring_topology.resize(recv_buffer_ring_topology.size());
         std::copy(recv_buffer_ring_topology.begin(), recv_buffer_ring_topology.end(), send_buffer_ring_topology.begin());
     }
-
-    std::cout << "1" << std::endl;
 
     // gather a, b, c to rank 0
     std::vector<uint64_t> total_a(n * n);

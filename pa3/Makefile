@@ -1,5 +1,5 @@
 CXX = mpic++
-CXXFLAGS = -std=c++11
+CXXFLAGS = -std=c++11 -O3
 SRC = main.cpp
 EXEC = spmat
 

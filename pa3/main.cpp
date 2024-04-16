@@ -25,7 +25,7 @@ std::vector<SparseMatrixEntry> generateSparseMatrix(uint64_t row_start, uint64_t
     // for generating value, use another seed
     auto value_seed = std::chrono::system_clock::now().time_since_epoch().count() / (rank + 1);
     std::mt19937_64 rngValue(static_cast<unsigned int>(value_seed));
-    std::uniform_int_distribution<uint64_t> distValue(0, 10);
+    std::uniform_int_distribution<uint64_t> distValue(0, UINT16_MAX);
 
     std::vector<SparseMatrixEntry> sparseMatrix;
 
@@ -83,10 +83,11 @@ int main(int argc, char* argv[]) {
     
     std::vector<SparseMatrixEntry> sparseMatrixA = generateSparseMatrix(row_start, row_end, n, sparsity_parameter, rank);
     std::vector<SparseMatrixEntry> sparseMatrixB = generateSparseMatrix(row_start, row_end, n, sparsity_parameter, rank);
+
     // initialize C with size: [n / size, n]
-    std::vector<uint64_t> local_c(n * n / size);
-    std::vector<uint64_t> flattened_local_a(n * n / size);
-    std::vector<uint64_t> flattened_local_b(n * n / size);
+    uint64_t* local_c = (uint64_t*)calloc(n * n / size, sizeof(uint64_t));
+    uint64_t* flattened_local_a = (uint64_t*)calloc(n * n / size, sizeof(uint64_t));
+    uint64_t* flattened_local_b = (uint64_t*)calloc(n * n / size, sizeof(uint64_t));
 
     for (const auto& entry : sparseMatrixA) {
         uint64_t row = entry.row;
@@ -145,6 +146,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    std::cout << "Rank: " << rank << "Pos 1" << std::endl;
+
     // ring topology, rotate B (n - 1) times
     // recv_buffer becomes send_buffer now
     int source = (rank - 1 + size) % size;
@@ -174,20 +177,25 @@ int main(int argc, char* argv[]) {
         std::copy(recv_buffer_ring_topology.begin(), recv_buffer_ring_topology.end(), send_buffer_ring_topology.begin());
     }
 
+    if (rank == 0) {
+        end_time = MPI_Wtime();
+        printf("Time elapsed: %.6fs\n", end_time - start_time);
+    }
+
     // gather a, b, c to rank 0
-    std::vector<uint64_t> total_a(n * n);
-    std::vector<uint64_t> total_b(n * n);
-    std::vector<uint64_t> total_c(n * n);
+    uint64_t* total_a = (uint64_t*)calloc(n * n, sizeof(uint64_t));
+    uint64_t* total_b = (uint64_t*)calloc(n * n, sizeof(uint64_t));
+    uint64_t* total_c = (uint64_t*)calloc(n * n, sizeof(uint64_t));
 
-    MPI_Gather(flattened_local_a.data(), n * n / size, MPI_UINT64_T, total_a.data(), n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
+    MPI_Gather(flattened_local_a, n * n / size, MPI_UINT64_T, total_a, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
 
-    MPI_Gather(flattened_local_b.data(), n * n / size, MPI_UINT64_T, total_b.data(), n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
+    MPI_Gather(flattened_local_b, n * n / size, MPI_UINT64_T, total_b, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
 
-    MPI_Gather(local_c.data(), n * n / size, MPI_UINT64_T, total_c.data(), n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
+    MPI_Gather(local_c, n * n / size, MPI_UINT64_T, total_c, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
 
     if (print_flag == 1 && rank == 0) {
         std::ofstream outputFile(output_file_name);
-        for (int i = 0; i < total_a.size(); i++) {
+        for (uint64_t i = 0; i < n * n; i++) {
             outputFile << total_a[i];
             if ((i + 1) % n != 0) {
                 outputFile << " ";
@@ -197,7 +205,7 @@ int main(int argc, char* argv[]) {
         }
 
         outputFile << std::endl;
-        for (int i = 0; i < total_b.size(); i++) {
+        for (uint64_t i = 0; i < n * n; i++) {
             outputFile << total_b[i];
             if ((i + 1) % n != 0) {
                 outputFile << " ";
@@ -207,7 +215,7 @@ int main(int argc, char* argv[]) {
         }
 
         outputFile << std::endl;
-        for (int i = 0; i < total_c.size(); i++) {
+        for (uint64_t i = 0; i < n * n; i++) {
             outputFile << total_c[i];
             if ((i + 1) % n != 0) {
                 outputFile << " ";

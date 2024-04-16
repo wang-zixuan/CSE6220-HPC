@@ -137,6 +137,7 @@ int main(int argc, char* argv[]) {
     MPI_Alltoallv(send_buffer.data(), send_counts.data(), sdispls.data(), MPI_SPARSE_ENTRY, 
                   recv_buffer.data(), recv_counts.data(), rdispls.data(), MPI_SPARSE_ENTRY, MPI_COMM_WORLD);
 
+    // compute local data first
     for (const auto& entryA : sparseMatrixA) {
         for (const auto& entryB : recv_buffer) {
             if (entryA.col != entryB.row) {
@@ -146,9 +147,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    std::cout << "Rank: " << rank << "Pos 1" << std::endl;
-
-    // ring topology, rotate B (n - 1) times
+    // ring topology, rotate B (size - 1) times
     // recv_buffer becomes send_buffer now
     int source = (rank - 1 + size) % size;
     int dest = (rank + 1) % size;
@@ -157,10 +156,13 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < size - 1; i++) {
         int send_size = send_buffer_ring_topology.size();
         int recv_size;
+
+        // communicate count
         MPI_Sendrecv(&send_size, 1, MPI_INT, dest, 0, &recv_size, 1, MPI_INT, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
         std::vector<SparseMatrixEntry> recv_buffer_ring_topology(recv_size);
 
+        // communicate real data
         MPI_Sendrecv(send_buffer_ring_topology.data(), send_size, MPI_SPARSE_ENTRY, dest, 0, recv_buffer_ring_topology.data(), recv_size, MPI_SPARSE_ENTRY, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         
         for (const auto& entryA : sparseMatrixA) {

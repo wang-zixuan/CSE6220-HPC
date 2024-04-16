@@ -154,10 +154,14 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    // ring topology, rotate B (size - 1) times
-    // recv_buffer becomes send_buffer now
-    int source = (rank - 1 + size) % size;
-    int dest = (rank + 1) % size;
+    int dims[1] = {size};
+    int periods[1] = {1};
+    
+    // ring topology using MPI_Cart_Create
+    MPI_Comm ring_comm;
+    MPI_Cart_create(MPI_COMM_WORLD, 1, dims, periods, 1, &ring_comm);
+    int left, right;
+    MPI_Cart_shift(ring_comm, 0, 1, &left, &right);
 
     std::vector<SparseMatrixEntry> send_buffer_ring_topology(recv_buffer.begin(), recv_buffer.end());
     for (int i = 0; i < size - 1; i++) {
@@ -165,12 +169,12 @@ int main(int argc, char* argv[]) {
         int recv_size;
 
         // communicate count
-        MPI_Sendrecv(&send_size, 1, MPI_INT, dest, 0, &recv_size, 1, MPI_INT, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Sendrecv(&send_size, 1, MPI_INT, right, 0, &recv_size, 1, MPI_INT, left, 0, ring_comm, MPI_STATUS_IGNORE);
 
         std::vector<SparseMatrixEntry> recv_buffer_ring_topology(recv_size);
 
         // communicate real data
-        MPI_Sendrecv(send_buffer_ring_topology.data(), send_size, MPI_SPARSE_ENTRY, dest, 0, recv_buffer_ring_topology.data(), recv_size, MPI_SPARSE_ENTRY, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Sendrecv(send_buffer_ring_topology.data(), send_size, MPI_SPARSE_ENTRY, right, 0, recv_buffer_ring_topology.data(), recv_size, MPI_SPARSE_ENTRY, left, 0, ring_comm, MPI_STATUS_IGNORE);
 
         for (const auto& entryB : recv_buffer_ring_topology) {
             auto it = groupedA.find(entryB.row);

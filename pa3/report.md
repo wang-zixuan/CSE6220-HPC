@@ -10,7 +10,6 @@ Zixuan Wang, Jiashu Li, Yusen Su
 
 ### 2. Plot for: fix $n \geq 10000$ and change $e=0.1, 0.01, 0.001$ using $p=2,4,8,16$
 
-srun -n 2 ./spmat 10000 0.01 1 spmat_out : 758.683984s
 
 ### 3. Space analysis of our program
 

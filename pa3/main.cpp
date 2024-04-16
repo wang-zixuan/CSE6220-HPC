@@ -6,6 +6,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
 
 struct SparseMatrixEntry {
     uint64_t row;
@@ -105,6 +106,12 @@ int main(int argc, char* argv[]) {
         start_time = MPI_Wtime();
     }
 
+    std::unordered_map<uint64_t, std::vector<SparseMatrixEntry>> groupedA;
+
+    for (const auto& entry : sparseMatrixA) {
+        groupedA[entry.col].push_back(entry);
+    }
+
     // step 1: prepare send counts and send buffer
     std::vector<int> send_counts(size, 0);
     std::vector<std::vector<SparseMatrixEntry>> sendbuffer_2d(size);
@@ -138,12 +145,12 @@ int main(int argc, char* argv[]) {
                   recv_buffer.data(), recv_counts.data(), rdispls.data(), MPI_SPARSE_ENTRY, MPI_COMM_WORLD);
 
     // compute local data first
-    for (const auto& entryA : sparseMatrixA) {
-        for (const auto& entryB : recv_buffer) {
-            if (entryA.col != entryB.row) {
-                continue;
+    for (const auto& entryB : recv_buffer) {
+        auto it = groupedA.find(entryB.row);
+        if (it != groupedA.end()) {
+            for (const auto& entryA : it->second) {
+                local_c[(entryA.row - row_start) * n + entryB.col] += entryA.value * entryB.value;
             }
-            local_c[(entryA.row - row_start) * n + entryB.col] += entryA.value * entryB.value; 
         }
     }
 
@@ -164,16 +171,16 @@ int main(int argc, char* argv[]) {
 
         // communicate real data
         MPI_Sendrecv(send_buffer_ring_topology.data(), send_size, MPI_SPARSE_ENTRY, dest, 0, recv_buffer_ring_topology.data(), recv_size, MPI_SPARSE_ENTRY, source, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        
-        for (const auto& entryA : sparseMatrixA) {
-            for (const auto& entryB : recv_buffer_ring_topology) {
-                if (entryA.col != entryB.row) {
-                    continue;
+
+        for (const auto& entryB : recv_buffer_ring_topology) {
+            auto it = groupedA.find(entryB.row);
+            if (it != groupedA.end()) {
+                for (const auto& entryA : it->second) {
+                    local_c[(entryA.row - row_start) * n + entryB.col] += entryA.value * entryB.value;
                 }
-                local_c[(entryA.row - row_start) * n + entryB.col] += entryA.value * entryB.value; 
             }
         }
-
+        
         // the old recv_buffer_ring_topology now becomes the new send_buffer_ring_topology
         send_buffer_ring_topology.resize(recv_buffer_ring_topology.size());
         std::copy(recv_buffer_ring_topology.begin(), recv_buffer_ring_topology.end(), send_buffer_ring_topology.begin());

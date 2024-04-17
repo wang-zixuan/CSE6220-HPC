@@ -14,7 +14,7 @@ For every entry of B in a single processor, we find its target processor based o
 
 1.1.3 Rotate the B matrix using the ring topology such that all rows of A can perform dot products with all the columns of B 
 
-To implement this, we firstly compute initial values in C using local A and B on the same processor. In our algorithm, we only compute the dot product when the column index of A is equal to the row index of B. Instead of traversing all the non-zero entries of A and B, we create a HashMap whose key is the column index of A and value is the entry of A. For every entry of B, we use the row index of it as the key of the hashmap and compute the dot product.
+To implement this, we firstly compute initial values in C using local A and B on the same processor. In our algorithm, we only compute the dot product when the column index of A is equal to the row index of B. Instead of traversing all the non-zero entries of A and B, we sort A locally based on the column index and sort B based on the row index. Then for every entry of B, we use binary search to find the lower bound of column in A based on row index of entry of B.
 
 Then, a processor will receive data of (n / p) columns of B from its left processor and send (n / p) columns of B to its right processor. The process will be performed (size - 1) times. In every iteration, we will add the value of dot product of A and B into local C. This ensures that (n / p) rows of A can perform dot product on all columns of B. 
 

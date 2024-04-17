@@ -1,0 +1,50 @@
+---------------------------------------
+Begin Slurm Prolog: Apr-17-2024 10:27:28
+Job ID:    595190
+User ID:   zwang3444
+Account:   ece
+Job name:  pa2
+Partition: coc-cpu
+---------------------------------------
+Running srun -n 16 ./spmat 2000 0.01 0 spmat_out
+Time elapsed: 0.006317s
+Running srun -n 16 ./spmat 4000 0.01 0 spmat_out
+Time elapsed: 0.021566s
+Running srun -n 16 ./spmat 8000 0.01 0 spmat_out
+Time elapsed: 0.099309s
+Running srun -n 2 ./spmat 10000 0.1 0 spmat_out
+Time elapsed: 54.629744s
+Running srun -n 4 ./spmat 10000 0.1 0 spmat_out
+Time elapsed: 28.616239s
+Running srun -n 8 ./spmat 10000 0.1 0 spmat_out
+Time elapsed: 11.705523s
+Running srun -n 16 ./spmat 10000 0.1 0 spmat_out
+Time elapsed: 3.814617s
+Running srun -n 2 ./spmat 10000 0.01 0 spmat_out
+Time elapsed: 0.892912s
+Running srun -n 4 ./spmat 10000 0.01 0 spmat_out
+Time elapsed: 0.494341s
+Running srun -n 8 ./spmat 10000 0.01 0 spmat_out
+Time elapsed: 0.278354s
+Running srun -n 16 ./spmat 10000 0.01 0 spmat_out
+Time elapsed: 0.165181s
+Running srun -n 2 ./spmat 10000 0.001 0 spmat_out
+Time elapsed: 0.106757s
+Running srun -n 4 ./spmat 10000 0.001 0 spmat_out
+Time elapsed: 0.058512s
+Running srun -n 8 ./spmat 10000 0.001 0 spmat_out
+Time elapsed: 0.035194s
+Running srun -n 16 ./spmat 10000 0.001 0 spmat_out
+Time elapsed: 0.029821s
+---------------------------------------
+Begin Slurm Epilog: Apr-17-2024 10:29:34
+Job ID:        595190
+Array Job ID:  _4294967294
+User ID:       zwang3444
+Account:       ece
+Job name:      pa2
+Resources:     cpu=16,mem=64G,node=1
+Rsrc Used:     cput=00:33:36,vmem=5428K,walltime=00:02:06,mem=5420K,energy_used=0
+Partition:     coc-cpu
+Nodes:         atl1-1-02-003-19-2
+---------------------------------------

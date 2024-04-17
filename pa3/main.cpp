@@ -6,7 +6,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
-#include <unordered_map>
+#include <algorithm>
 
 struct SparseMatrixEntry {
     uint64_t row;
@@ -16,6 +16,15 @@ struct SparseMatrixEntry {
 
 MPI_Datatype MPI_SPARSE_ENTRY;
 
+bool compareByCol(const SparseMatrixEntry& a, const SparseMatrixEntry& b) {
+    return a.col < b.col;
+}
+
+// Function to compare SparseMatrixEntry by 'row'
+bool compareByRow(const SparseMatrixEntry& a, const SparseMatrixEntry& b) {
+    return a.row < b.row;
+}
+
 std::vector<SparseMatrixEntry> generateSparseMatrix(uint64_t row_start, uint64_t row_end, uint64_t n, double sparsity, int rank) {
     // generate values for n/p rows and n cols
     // seed for sparsity
@@ -23,7 +32,6 @@ std::vector<SparseMatrixEntry> generateSparseMatrix(uint64_t row_start, uint64_t
     std::mt19937 rngSparsity(static_cast<unsigned int>(seed));
     std::uniform_real_distribution<double> distSparsity(0.0, 1.0);
 
-    // for generating value, use another seed
     auto value_seed = std::chrono::system_clock::now().time_since_epoch().count() / (rank + 1);
     std::mt19937_64 rngValue(static_cast<unsigned int>(value_seed));
     std::uniform_int_distribution<uint64_t> distValue(0, UINT16_MAX);
@@ -106,12 +114,6 @@ int main(int argc, char* argv[]) {
         start_time = MPI_Wtime();
     }
 
-    std::unordered_map<uint64_t, std::vector<SparseMatrixEntry>> groupedA;
-
-    for (const auto& entry : sparseMatrixA) {
-        groupedA[entry.col].push_back(entry);
-    }
-
     // step 1: prepare send counts and send buffer
     std::vector<int> send_counts(size, 0);
     std::vector<std::vector<SparseMatrixEntry>> sendbuffer_2d(size);
@@ -145,12 +147,18 @@ int main(int argc, char* argv[]) {
                   recv_buffer.data(), recv_counts.data(), rdispls.data(), MPI_SPARSE_ENTRY, MPI_COMM_WORLD);
 
     // compute local data first
+    std::sort(sparseMatrixA.begin(), sparseMatrixA.end(), compareByCol);
+    std::sort(recv_buffer.begin(), recv_buffer.end(), compareByRow);
+
     for (const auto& entryB : recv_buffer) {
-        auto it = groupedA.find(entryB.row);
-        if (it != groupedA.end()) {
-            for (const auto& entryA : it->second) {
-                local_c[(entryA.row - row_start) * n + entryB.col] += entryA.value * entryB.value;
-            }
+        // Binary search for the start of the matching 'row' in sparseMatrixA
+        auto lower = std::lower_bound(sparseMatrixA.begin(), sparseMatrixA.end(), entryB,
+                                    [](const SparseMatrixEntry& entry, const SparseMatrixEntry& val) {
+                                        return entry.col < val.row;
+                                    });
+        // Iterate through all entries with matching 'col' (now aligned with 'row' of recv_buffer)
+        for (auto it = lower; it != sparseMatrixA.end() && it->col == entryB.row; ++it) {
+            local_c[(it->row - row_start) * n + entryB.col] += it->value * entryB.value;
         }
     }
 
@@ -177,11 +185,14 @@ int main(int argc, char* argv[]) {
         MPI_Sendrecv(send_buffer_ring_topology.data(), send_size, MPI_SPARSE_ENTRY, right, 0, recv_buffer_ring_topology.data(), recv_size, MPI_SPARSE_ENTRY, left, 0, ring_comm, MPI_STATUS_IGNORE);
 
         for (const auto& entryB : recv_buffer_ring_topology) {
-            auto it = groupedA.find(entryB.row);
-            if (it != groupedA.end()) {
-                for (const auto& entryA : it->second) {
-                    local_c[(entryA.row - row_start) * n + entryB.col] += entryA.value * entryB.value;
-                }
+            // Binary search for the start of the matching 'row' in sparseMatrixA
+            auto lower = std::lower_bound(sparseMatrixA.begin(), sparseMatrixA.end(), entryB,
+                                        [](const SparseMatrixEntry& entry, const SparseMatrixEntry& val) {
+                                            return entry.col < val.row;
+                                        });
+            // Iterate through all entries with matching 'col' (now aligned with 'row' of recv_buffer)
+            for (auto it = lower; it != sparseMatrixA.end() && it->col == entryB.row; ++it) {
+                local_c[(it->row - row_start) * n + entryB.col] += it->value * entryB.value;
             }
         }
         
@@ -194,52 +205,52 @@ int main(int argc, char* argv[]) {
         end_time = MPI_Wtime();
         printf("Time elapsed: %.6fs\n", end_time - start_time);
     }
+    
+    if (print_flag == 1) {
+        // gather a, b, c to rank 0
+        uint64_t* total_a = (uint64_t*)calloc(n * n, sizeof(uint64_t));
+        uint64_t* total_b = (uint64_t*)calloc(n * n, sizeof(uint64_t));
+        uint64_t* total_c = (uint64_t*)calloc(n * n, sizeof(uint64_t));
 
-    // gather a, b, c to rank 0
-    uint64_t* total_a = (uint64_t*)calloc(n * n, sizeof(uint64_t));
-    uint64_t* total_b = (uint64_t*)calloc(n * n, sizeof(uint64_t));
-    uint64_t* total_c = (uint64_t*)calloc(n * n, sizeof(uint64_t));
+        MPI_Gather(flattened_local_a, n * n / size, MPI_UINT64_T, total_a, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
+        MPI_Gather(flattened_local_b, n * n / size, MPI_UINT64_T, total_b, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
+        MPI_Gather(local_c, n * n / size, MPI_UINT64_T, total_c, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
 
-    MPI_Gather(flattened_local_a, n * n / size, MPI_UINT64_T, total_a, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
-
-    MPI_Gather(flattened_local_b, n * n / size, MPI_UINT64_T, total_b, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
-
-    MPI_Gather(local_c, n * n / size, MPI_UINT64_T, total_c, n * n / size, MPI_UINT64_T, 0, MPI_COMM_WORLD);
-
-    if (print_flag == 1 && rank == 0) {
-        std::ofstream outputFile(output_file_name);
-        for (uint64_t i = 0; i < n * n; i++) {
-            outputFile << total_a[i];
-            if ((i + 1) % n != 0) {
-                outputFile << " ";
-            } else {
-                outputFile << std::endl;
+        if (rank == 0) {
+            std::ofstream outputFile(output_file_name);
+            for (uint64_t i = 0; i < n * n; i++) {
+                outputFile << total_a[i];
+                if ((i + 1) % n != 0) {
+                    outputFile << " ";
+                } else {
+                    outputFile << std::endl;
+                }
             }
-        }
 
-        outputFile << std::endl;
-        for (uint64_t i = 0; i < n * n; i++) {
-            outputFile << total_b[i];
-            if ((i + 1) % n != 0) {
-                outputFile << " ";
-            } else {
-                outputFile << std::endl;
+            outputFile << std::endl;
+            for (uint64_t i = 0; i < n * n; i++) {
+                outputFile << total_b[i];
+                if ((i + 1) % n != 0) {
+                    outputFile << " ";
+                } else {
+                    outputFile << std::endl;
+                }
             }
-        }
 
-        outputFile << std::endl;
-        for (uint64_t i = 0; i < n * n; i++) {
-            outputFile << total_c[i];
-            if ((i + 1) % n != 0) {
-                outputFile << " ";
-            } else {
-                outputFile << std::endl;
+            outputFile << std::endl;
+            for (uint64_t i = 0; i < n * n; i++) {
+                outputFile << total_c[i];
+                if ((i + 1) % n != 0) {
+                    outputFile << " ";
+                } else {
+                    outputFile << std::endl;
+                }
             }
-        }
 
-        outputFile.close();
+            outputFile.close();
+        }
     }
-
+    
     MPI_Finalize();
     return 0;
 }

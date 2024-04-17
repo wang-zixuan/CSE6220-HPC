@@ -3,7 +3,7 @@ Begin Slurm Prolog: Apr-17-2024 10:27:28
 Job ID:    595190
 User ID:   zwang3444
 Account:   ece
-Job name:  pa2
+Job name:  pa3
 Partition: coc-cpu
 ---------------------------------------
 Running srun -n 16 ./spmat 2000 0.01 0 spmat_out
@@ -42,7 +42,7 @@ Job ID:        595190
 Array Job ID:  _4294967294
 User ID:       zwang3444
 Account:       ece
-Job name:      pa2
+Job name:      pa3
 Resources:     cpu=16,mem=64G,node=1
 Rsrc Used:     cput=00:33:36,vmem=5428K,walltime=00:02:06,mem=5420K,energy_used=0
 Partition:     coc-cpu

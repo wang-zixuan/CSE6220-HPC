@@ -1,5 +1,3 @@
-George's algorithm:
-
 1. How our program works
 
 1.1 Workflow
@@ -30,6 +28,3 @@ Resources:     cpu=16,mem=64G,node=3
 Rsrc Used:     cput=00:15:12,vmem=4560K,walltime=00:00:57,mem=4552K,energy_used=0
 Partition:     coc-cpu
 Nodes:         atl1-1-02-003-19-[1-2],atl1-1-02-003-20-1
-
-Bonus algorithm:
-

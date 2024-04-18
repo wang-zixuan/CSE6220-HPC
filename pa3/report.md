@@ -54,14 +54,38 @@ Adding this together, the total runtime would be $O(\frac{n^2}{p} + 2\tau \log p
 
 ### 5. Empirical analysis, observations, and conclusion
 Empirical Results Overview
-Our experimental setup evaluated the parallel sparse matrix multiplication implementation across different numbers of processors ($p$), matrix sizes ($n$), and sparsity levels ($s$). Key empirical results are summarized as follows:
-\textbf{Scaling with Matrix Size:} As $n$ increased from 2000 to 8000 with $p = 16$ and $s = 0.01$, the computation time escalated from 0.006317 seconds to 0.099309 seconds. This trend highlights a non-linear increase, aligning with rising computational and communication demands.
-    \item \textbf{Impact of Sparsity:} For $n = 10000$, decreasing sparsity from 0.1 to 0.001 consistently reduced computation times, underscoring efficient management of non-zero elements and decreased communication overhead.
+- We tested the implementation of parallel sparse matrix multiplication with varying numbers of processors ($p$), matrix sizes ($n$), and sparsity levels ($s$) in our experimental setup. Important empirical findings are summed up as follows: 
+
+1. Scaling with Matrix Size: With $p = 16$ and $s = 0.01$, the computation time increased from 0.006317 seconds to 0.099309 seconds as $n$ increased from 2000 to 8000. This trend indicates a non-linear increase in line with the growing demands for computation and communication.
+2. Effect of Sparsity: Reducing sparsity from 0.1 to 0.001 consistently lowered computation times for $n = 10000$, highlighting effective handling of non-zero elements and less communication overhead.
+3. Processor Scalability: Increasing $p$ from 2 to 16 decreased the runtime from 54.629744 seconds to 3.814617 seconds, exhibiting strong scalability and efficient parallelization with $n = 10000$ and $s = 0.1$.
+
+Theoretical vs. Empirical Analysis:
+- Comparing Empirical and Theoretical Analysis: Based on the computational complexity, the following theoretical estimates for the runtime of our program were made:
+\[ O\left(\frac{n^2}{p} + 2\tau \log p + \mu p \log p + p + \mu s n^2 \log p + \frac{sn^2}{p}\log \frac{sn^2}{p} + (p-1)\cdot (\tau +\mu \frac{sn^2}{p})\right) \]
+and the complexity of space: \[ O\left(\frac{n^2}{p}+4p+6s\cdot \frac{n^2}{p}\right). \] Here are some comparisons and things to think about:
+1. Runtime Comparisons: Overall, the experimental results followed the theoretical scaling trends, but sometimes the actual runtimes exceeded the predictions, possibly because the MPI operation efficiencies were underestimated and the overheads were overestimated.
+2. Space Complexity: The absence of memory overflow problems indicates that the requirements were sufficiently captured by our space complexity model.
+
+Discrepancies and Adjustments
+- Discrepancies were observed, particularly at higher $p$ values where the reduction in runtime was more significant than predicted. Potential reasons include:
+1. MPI Overheads: These were less than projected, especially for group operations such as MPI\_Alltoallv.
+2. Hardware Capabilities: Compared to models, the underlying hardware was more effective at handling parallel tasks.
+
+Modifications to the theoretical framework could improve the terminology used to describe communication overhead and take hardware capability observations into account.
+
+Observations and Conclusions
+
+Important findings include: 
+1. Efficiency at High Sparsity: We found that our program handles highly sparse matrices with significant runtime reductions as the sparsity decreases.
+2. Load Balancing: The efficiency of the ring topology utilized for matrix $B$ rotation and the distribution of matrix entries are both highly significant
+
+Finally, the empirical analysis verifies the efficiency and robust scalability of our parallel sparse matrix multiplication implementation across a range of processor counts and sparsity levels. Further improvements in data distribution and communication efficiency may be investigated in future work, particularly for very large matrices or high processor counts.
 
 
 ### 6. Contributions of each team member
 | Team member | Contribution |
 | :------------------: | :----------: |
 |  Yusen Su     |  |
-|  Jiashu Li    |  |
+|  Jiashu Li    |  Report Generation|
 |  Zixuan Wang  | Implementation of George's algorithm |

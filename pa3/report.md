@@ -11,6 +11,8 @@ Yusen Su, Jiashu Li, Zixuan Wang
 
 
 ### 2. Plot for: fix $n \geq 10000$ and change $e=0.1, 0.01, 0.001$ using $p=2,4,8,16$
+![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/1930df84-aebd-4922-88a7-7019f49a4f9f)
+
 
 
 ### 3. Space analysis of our program

@@ -13,6 +13,16 @@ Zixuan Wang, Jiashu Li, Yusen Su
 
 ### 3. Space analysis of our program
 
+Suppose the sizes of matrix A and B are both $n\times n$ and we have $p$ processors. The sparsity parameter is $s$.
+
+On each processor, we store $n/p$ rows of A, B, and C with sparsity $s$, so the space complexity on each processor will be $O(3s\cdot \frac{n^2}{p})$.
+
+In order to transpose B, we need to create local send buffers and receive buffers for count and data, which requires $O(2\cdot p + 2\cdot s\cdot \frac{n^2}{p})$ space.
+
+To rotate the B matrix using ring topology, we create a send and receive buffer with $O(2\cdot s\cdot \frac{n^2}{p})$ space. 
+
+If we need to store the data into an output file, 
+
 ### 4. Runtime analysis of our program
 
 ### 5. Empirical analysis, observations, and conclusion

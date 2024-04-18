@@ -7,6 +7,8 @@ Yusen Su, Jiashu Li, Zixuan Wang
 ## Evaluation of our program
 
 ### 1. Plot for: $p=16, e=0.01,$ three different $n$
+![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/e8891a28-69aa-4c6e-b73d-7137f5996554)
+
 
 ### 2. Plot for: fix $n \geq 10000$ and change $e=0.1, 0.01, 0.001$ using $p=2,4,8,16$
 

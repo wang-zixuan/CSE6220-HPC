@@ -87,5 +87,5 @@ Finally, the empirical analysis verifies the efficiency and robust scalability o
 | Team member | Contribution |
 | :------------------: | :----------: |
 |  Yusen Su     |  |
-|  Jiashu Li    |  Report Generation|
+|  Jiashu Li    |  Result Analysis and Report Generation|
 |  Zixuan Wang  | Implementation of George's algorithm |

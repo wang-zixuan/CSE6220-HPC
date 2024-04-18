@@ -95,20 +95,6 @@ int main(int argc, char* argv[]) {
 
     // initialize C with size: [n / size, n]
     uint64_t* local_c = (uint64_t*)calloc(n * n / size, sizeof(uint64_t));
-    uint64_t* flattened_local_a = (uint64_t*)calloc(n * n / size, sizeof(uint64_t));
-    uint64_t* flattened_local_b = (uint64_t*)calloc(n * n / size, sizeof(uint64_t));
-
-    for (const auto& entry : sparseMatrixA) {
-        uint64_t row = entry.row;
-        uint64_t col = entry.col;
-        flattened_local_a[(row - row_start) * n + col] = entry.value;
-    }
-
-    for (const auto& entry : sparseMatrixB) {
-        uint64_t row = entry.row;
-        uint64_t col = entry.col;
-        flattened_local_b[(row - row_start) * n + col] = entry.value;
-    }
 
     if (rank == 0) {
         start_time = MPI_Wtime();
@@ -207,7 +193,21 @@ int main(int argc, char* argv[]) {
     }
     
     if (print_flag == 1) {
-        // gather a, b, c to rank 0
+        uint64_t* flattened_local_a = (uint64_t*)calloc(n * n / size, sizeof(uint64_t));
+        uint64_t* flattened_local_b = (uint64_t*)calloc(n * n / size, sizeof(uint64_t));
+
+        for (const auto& entry : sparseMatrixA) {
+            uint64_t row = entry.row;
+            uint64_t col = entry.col;
+            flattened_local_a[(row - row_start) * n + col] = entry.value;
+        }
+
+        for (const auto& entry : sparseMatrixB) {
+            uint64_t row = entry.row;
+            uint64_t col = entry.col;
+            flattened_local_b[(row - row_start) * n + col] = entry.value;
+        }
+
         uint64_t* total_a = (uint64_t*)calloc(n * n, sizeof(uint64_t));
         uint64_t* total_b = (uint64_t*)calloc(n * n, sizeof(uint64_t));
         uint64_t* total_c = (uint64_t*)calloc(n * n, sizeof(uint64_t));

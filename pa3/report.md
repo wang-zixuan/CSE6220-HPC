@@ -4,7 +4,7 @@
 
 Yusen Su, Jiashu Li, Zixuan Wang
 
-## Evaluation of our program
+## Evaluation of our program (we use `-O3` to optimize the compilation)
 
 ### 1. Plot for: $p=16, e=0.01,$ three different $n$
 ![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/e8891a28-69aa-4c6e-b73d-7137f5996554)

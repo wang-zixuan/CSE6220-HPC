@@ -249,6 +249,8 @@ int main(int argc, char* argv[]) {
             outputFile.close();
         }
     }
+
+    MPI_Comm_free(&ring_comm);
     
     MPI_Finalize();
     return 0;

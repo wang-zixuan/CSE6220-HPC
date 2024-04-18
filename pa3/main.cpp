@@ -1,6 +1,5 @@
 #include "mpi.h"
 #include <string>
-#include <tuple>
 #include <vector>
 #include <random>
 #include <chrono>

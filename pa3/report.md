@@ -53,11 +53,8 @@ The total space complexity on each processor would be $O(\frac{n^2}{p}+4p+6s\cdo
 Adding this together, the total runtime would be $O(\frac{n^2}{p} + 2\tau \log p + \mu p \log p + p + \mu s n^2 \log p + \frac{sn^2}{p}\log \frac{sn^2}{p} + (p-1)\cdot (\tau +\mu \frac{sn^2}{p}))$.
 
 ### 5. Empirical analysis, observations, and conclusion
-
-(Theoretically analyze the runtime of your parallel algorithm and discuss if the experimental results supports your analysis or not. Provide explanations if your experimental performance doesn’t match your theoretical analysis. 
-
-Try to come up with some important observations on your program. We are not asking that specific questions be answered but you are expected to think on your own, experiment and show the conclusions along with the evidence that led you to reach the conclusions. Any irregular or unexpected results should also be noted and explained why it is unavoidable. Include your plots and observations in a PDF file with name report.pdf.)
-
+Empirical Results Overview
+Our experimental setup evaluated the parallel sparse matrix multiplication implementation across different numbers of processors ($p$), matrix sizes ($n$), and sparsity levels ($s$). Key empirical results are summarized as follows:
 
 
 ### 6. Contributions of each team member

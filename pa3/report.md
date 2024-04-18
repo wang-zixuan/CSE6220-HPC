@@ -55,6 +55,8 @@ Adding this together, the total runtime would be $O(\frac{n^2}{p} + 2\tau \log p
 ### 5. Empirical analysis, observations, and conclusion
 Empirical Results Overview
 Our experimental setup evaluated the parallel sparse matrix multiplication implementation across different numbers of processors ($p$), matrix sizes ($n$), and sparsity levels ($s$). Key empirical results are summarized as follows:
+\textbf{Scaling with Matrix Size:} As $n$ increased from 2000 to 8000 with $p = 16$ and $s = 0.01$, the computation time escalated from 0.006317 seconds to 0.099309 seconds. This trend highlights a non-linear increase, aligning with rising computational and communication demands.
+    \item \textbf{Impact of Sparsity:} For $n = 10000$, decreasing sparsity from 0.1 to 0.001 consistently reduced computation times, underscoring efficient management of non-zero elements and decreased communication overhead.
 
 
 ### 6. Contributions of each team member

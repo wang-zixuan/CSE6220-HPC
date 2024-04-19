@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH -n 16
+#SBATCH -J pa3
+#SBATCH -t2:00:00
+
+# first experiment: for p = 16, plot the run-time of sparse matrix multiplication using three different n (> 1000) parameters by keeping e = 0.01 fixed.
+n=(2000 4000 8000)
+e=0.01
+p=16
+
+for nval in "${n[@]}"; do
+    echo "Running srun -n $p ./bonus $nval $e 0 spmat_out"
+    srun -n ${p} ./bonus ${nval} ${e} 0 spmat_out
+done
+
+nfixed=10000
+evals=(0.1 0.01 0.001)
+pvals=(4 16)
+
+for eval in "${evals[@]}"; do
+    for pval in "${pvals[@]}"; do
+        echo "Running srun -n $pval ./bonus $nfixed $eval 0 spmat_out"
+        srun -n ${pval} ./bonus ${nfixed} ${eval} 0 spmat_out
+    done
+done

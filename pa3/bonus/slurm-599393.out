@@ -1,0 +1,38 @@
+---------------------------------------
+Begin Slurm Prolog: Apr-19-2024 02:23:41
+Job ID:    599393
+User ID:   zwang3444
+Account:   ece
+Job name:  pa3
+Partition: coc-cpu
+---------------------------------------
+Running srun -n 16 ./bonus 2000 0.01 0 spmat_out
+Time elapsed: 0.002761s
+Running srun -n 16 ./bonus 4000 0.01 0 spmat_out
+Time elapsed: 0.012456s
+Running srun -n 16 ./bonus 8000 0.01 0 spmat_out
+Time elapsed: 0.074608s
+Running srun -n 4 ./bonus 10000 0.1 0 spmat_out
+Time elapsed: 26.565396s
+Running srun -n 16 ./bonus 10000 0.1 0 spmat_out
+Time elapsed: 7.058836s
+Running srun -n 4 ./bonus 10000 0.01 0 spmat_out
+Time elapsed: 0.425099s
+Running srun -n 16 ./bonus 10000 0.01 0 spmat_out
+Time elapsed: 0.131166s
+Running srun -n 4 ./bonus 10000 0.001 0 spmat_out
+Time elapsed: 0.053468s
+Running srun -n 16 ./bonus 10000 0.001 0 spmat_out
+Time elapsed: 0.014845s
+---------------------------------------
+Begin Slurm Epilog: Apr-19-2024 02:24:26
+Job ID:        599393
+Array Job ID:  _4294967294
+User ID:       zwang3444
+Account:       ece
+Job name:      pa3
+Resources:     cpu=16,mem=64G,node=1
+Rsrc Used:     cput=00:12:00,vmem=5420K,walltime=00:00:45,mem=5412K,energy_used=0
+Partition:     coc-cpu
+Nodes:         atl1-1-02-010-1-2
+---------------------------------------

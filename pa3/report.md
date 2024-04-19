@@ -86,6 +86,6 @@ Finally, the empirical analysis verifies the efficiency and robust scalability o
 ### 6. Contributions of each team member
 | Team member | Contribution |
 | :------------------: | :----------: |
-|  Yusen Su     |  |
+|  Yusen Su     | Implementation of bonus algorithm |
 |  Jiashu Li    |  Result Analysis and Report Generation|
 |  Zixuan Wang  | Implementation of George's algorithm |

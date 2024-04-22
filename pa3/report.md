@@ -4,7 +4,7 @@
 
 Yusen Su, Jiashu Li, Zixuan Wang
 
-## Evaluation of our program (we use `-O3` to optimize the compilation)
+## Evaluation of George's algorithm (we use `-O3` to optimize the compilation)
 
 ### 1. Plot for: $p=16, e=0.01,$ three different $n$
 ![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/e8891a28-69aa-4c6e-b73d-7137f5996554)
@@ -12,8 +12,6 @@ Yusen Su, Jiashu Li, Zixuan Wang
 
 ### 2. Plot for: fix $n \geq 10000$ and change $e=0.1, 0.01, 0.001$ using $p=2,4,8,16$
 ![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/1930df84-aebd-4922-88a7-7019f49a4f9f)
-
-
 
 ### 3. Space analysis of our program
 
@@ -82,8 +80,17 @@ Important findings include:
 
 Finally, the empirical analysis verifies the efficiency and robust scalability of our parallel sparse matrix multiplication implementation across a range of processor counts and sparsity levels. Further improvements in data distribution and communication efficiency may be investigated in future work, particularly for very large matrices or high processor counts.
 
+## Bonus algorithm (we also use `-O3` to optimize the compilation)
 
-### 6. Contributions of each team member
+### 1. Plot
+
+(compare with George's algo. Our bonus algo implementation only supports when $p$ is a squared number)
+
+### 2. Runtime analysis
+
+### 3. Observations
+
+## Contributions of each team member
 | Team member | Contribution |
 | :------------------: | :----------: |
 |  Yusen Su     | Implementation of bonus algorithm |

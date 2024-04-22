@@ -9,7 +9,7 @@
 #include <fstream>
 
 struct SparseMatrixEntry {
-    uint64_t row = -1;
+    uint64_t row;
     uint64_t col;
     uint64_t value;
 };
@@ -191,6 +191,24 @@ int main(int argc, char* argv[]) {
         SparseMatrixEntry* flattened_local_b = (SparseMatrixEntry*)calloc(n_local * n_local, sizeof(SparseMatrixEntry));
         SparseMatrixEntry* flattened_local_c = (SparseMatrixEntry*)calloc(n_local * n_local, sizeof(SparseMatrixEntry));
 
+        for (size_t i = 0; i < n_local * n_local; ++i) {
+            flattened_local_a[i].row = UINT64_MAX;
+            flattened_local_a[i].col = 0;
+            flattened_local_a[i].value = 0;
+        }
+
+        for (size_t i = 0; i < n_local * n_local; ++i) {
+            flattened_local_b[i].row = UINT64_MAX;
+            flattened_local_b[i].col = 0;
+            flattened_local_b[i].value = 0;
+        }
+
+        for (size_t i = 0; i < n_local * n_local; ++i) {
+            flattened_local_c[i].row = UINT64_MAX;
+            flattened_local_c[i].col = 0;
+            flattened_local_c[i].value = 0;
+        }
+
         for (const auto& entry : sparseMatrixA) {
             uint64_t row = entry.row;
             uint64_t col = entry.col;
@@ -245,13 +263,13 @@ int main(int argc, char* argv[]) {
 
         if (my2drank == 0) {
             for (uint64_t i = 0; i < n * n; i++) {
-                if (total_a[i].row != -1) {
+                if (total_a[i].row != UINT64_MAX) {
                     total_a_num[total_a[i].row * n + total_a[i].col] = total_a[i].value;
                 }
             }
 
             for (uint64_t i = 0; i < n * n; i++) {
-                if (total_b[i].row != -1) {
+                if (total_b[i].row != UINT64_MAX) {
                     total_b_num[total_b[i].row * n + total_b[i].col] = total_b[i].value;
                 }
             }

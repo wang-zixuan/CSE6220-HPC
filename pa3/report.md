@@ -143,7 +143,7 @@ Why the bonus algorithm is faster?
 -The overhead related to data transfers is reduced by using a 2D Cartesian grid and preset communication patterns (as opposed to dynamic data requests). The communication cost is maximized since every process is aware of the precise location and time of data transmission and reception.
 
 Observation and Conclusion
-
+- The Bonus Algorithm performs better than George's at all tested sparsity levels, with the performance gap growing noticeably as the sparsity decreases, according to a comparative analysis between the two algorithms across a range of sparsity levels. In particular, the Bonus Algorithm continues to have a discernible advantage at higher sparsities (e.g., e=0.1), even though both algorithms encounter longer computation times as a result of the increased number of non-zero elements. This benefit is significantly increased at lower sparsity levels (e.g., e=0.001 and 𝑒=0.01), where the Bonus Algorithm can handle sparse matrices far faster than George's Algorithm due to its efficiency in handling computation and communication. The trend suggests that the Bonus Algorithm can be up to multiple times faster, especially in settings where matrix sparsity plays a major role in efficiency and computational overhead.
 ## Contributions of each team member
 | Team member | Contribution |
 | :------------------: | :----------: |

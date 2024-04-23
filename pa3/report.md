@@ -88,61 +88,61 @@ Finally, the empirical analysis verifies the efficiency and robust scalability o
 ### 2. Plot for: fix $n \geq 10000$ and change $e=0.1, 0.01, 0.001$ using $p=4,16$
 ![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/e9a13a5a-d92f-4e40-adb1-65870e1859ed)
 
-(compare with George's algo. Our bonus algo implementation only supports when $p$ is a squared number)
-
-### 2. Runtime analysis
+### 3. Runtime analysis
 The frist several steps are similar to the George's algorithm described above.
-1. Generate Sparse Matrices A and B
--Each processor generates its portion of the sparse matrices. Given the matrix size $n$ divided among the processors in a 2D grid:
- 
-$O(\frac{n^2}{p})￥
-where $p$ is the number of processors and the matrices are $n \times n$.
+
+3.1. Generate Sparse Matrices A and B
+- Each processor generates its portion of the sparse matrices. Given the matrix size $n$ divided among the processors in a 2D grid: the runtime is $O(\frac{n^2}{p})$ where $p$ is the number of processors and the matrices are $n \times n$.
 
 - Each process sends and receives data for matrix alignment using MPI\_Sendrecv. The complexity involves:
 
-    $O(communication cost) = O(\tau + \mu \cdot s \cdot \frac{n^2}{p})￥
+    communication cost: $O(\tau + \mu \cdot s \cdot \frac{n^2}{p})$
  
     where $\tau$ is the latency, $\mu$ is the inverse of bandwidth, and $s$ is the sparsity that affects the number of non-zero elements communicated.
-2. Initial Alignment
+
+3.2. Initial Alignment
+
 Initial alignment involves shifting matrix A and B to align them for the multiplication.
 
-- Each process sends and receives data for matrix alignment using ￥\MPI\_Sendrecv￥. The complexity involves:
-    $O(\text{communication cost}) = O(\tau + \mu \cdot s \cdot \frac{n^2}{p})$
+- Each process sends and receives data for matrix alignment using `MPI_Sendrecv`. The complexity involves:
+    communication cost $O(\tau + \mu \cdot s \cdot \frac{n^2}{p})$
     where $\tau$ is the latency, $\mu$ is the inverse of bandwidth, and $s$ is the sparsity that affects the number of non-zero elements communicated.
 
-3. Sorting
-   -Both matrices are sorted in preparation for multiplication.
+3.3. Sorting
+- Both matrices are sorted in preparation for multiplication.
 $O\left(\frac{sn^2}{p} \log \frac{sn^2}{p}\right)$
 This is assuming sorting is done locally on each process with the complexity based on the sparsity and the size of the local matrix slice.
 
-4. Matrix Multiplication in a Shifted Grid
+3.4. Matrix Multiplication in a Shifted Grid
 -The main computation involves multiplying portions of matrices A and B that each process holds after alignment and communication:
 $O\left(\frac{sn^2}{p}\right)$
 Each process iterates, performing multiplication and shifting matrices across the Cartesian topology.
 
-5. Iterative Shifting and Multiplication
--Shift Matrix A: Left by one step in the Cartesian grid.
--Shift Matrix B: Up by one step in the Cartesian grid.
--The complexity for each shift involves $MPI\_Sendrecv$ operations and local computation for dot product:
+3.5. Iterative Shifting and Multiplication
+- Shift Matrix A: Left by one step in the Cartesian grid.
+- Shift Matrix B: Up by one step in the Cartesian grid.
+- The complexity for each shift involves `MPI_Sendrecv`` operations and local computation for dot product:
 $O\left((p-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
     This continues for $p-1$ steps (assuming the worst-case where each process needs to receive data from every other process directly or indirectly).
 
 The total runtime of the algorithms is:
 $O\left(\frac{n^2}{p} + \tau \log p + \mu p \log p + \frac{sn^2}{p} \log \frac{sn^2}{p} + (p-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
-### 3. Observations
-Communication:
+
+### 4. Observations
+#### Communication:
 - George's Algorithm: Employs a simple method to align data across processes by distributing matrices among processors in an undefined structure. Since data must be requested dynamically depending on computation requirements, this initial misalignment may result in increased communication overhead during the multiplication phase.
   
 - Bonus Algorithm: Uses a two-dimensional Cartesian grid to arrange data and processes. Data locality and predictable communication patterns are made possible by this structured distribution. It minimizes the amount of data communicated during the computational phase by aligning matrices prior to multiplication.
 
-Matrix Multiplication:
+#### Matrix Multiplication:
 - George's Algorithm: Multiplies without first aligning the matrices, which could result in delays for each processor as it may need to wait for data from other processors if it is not locally available.
 - Bonus Algorithm: Makes use of an initial alignment step to guarantee that, prior to the multiplication, each processor has the required submatrices. By doing this, runtime delays brought on by waiting for data during the multiplication stage are decreased.
 
-Why the bonus algorithm is faster?
--The overhead related to data transfers is reduced by using a 2D Cartesian grid and preset communication patterns (as opposed to dynamic data requests). The communication cost is maximized since every process is aware of the precise location and time of data transmission and reception.
+#### Why the bonus algorithm is faster?
 
-Observation and Conclusion
+- The overhead related to data transfers is reduced by using a 2D Cartesian grid and preset communication patterns (as opposed to dynamic data requests). The communication cost is maximized since every process is aware of the precise location and time of data transmission and reception.
+
+#### Observation and Conclusion
 - The Bonus Algorithm performs better than George's at all tested sparsity levels, with the performance gap growing noticeably as the sparsity decreases, according to a comparative analysis between the two algorithms across a range of sparsity levels. In particular, the Bonus Algorithm continues to have a discernible advantage at higher sparsities (e.g., e=0.1), even though both algorithms encounter longer computation times as a result of the increased number of non-zero elements. This benefit is significantly increased at lower sparsity levels (e.g., e=0.001 and 𝑒=0.01), where the Bonus Algorithm can handle sparse matrices far faster than George's Algorithm due to its efficiency in handling computation and communication. The trend suggests that the Bonus Algorithm can be up to multiple times faster, especially in settings where matrix sparsity plays a major role in efficiency and computational overhead.
 ## Contributions of each team member
 | Team member | Contribution |

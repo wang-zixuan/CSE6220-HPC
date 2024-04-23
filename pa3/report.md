@@ -91,6 +91,19 @@ Finally, the empirical analysis verifies the efficiency and robust scalability o
 (compare with George's algo. Our bonus algo implementation only supports when $p$ is a squared number)
 
 ### 2. Runtime analysis
+1. Generate Sparse Matrices A and B
+-Each processor generates its portion of the sparse matrices. Given the matrix size $n$ divided among the processors in a 2D grid:
+\[
+O\left(\frac{n^2}{p}\right)
+where $p$ is the number of processors and the matrices are $n \times n$.
+
+- Each process sends and receives data for matrix alignment using MPI\_Sendrecv. The complexity involves:
+    \[
+    O(\text{communication cost}) = O(\tau + \mu \cdot s \cdot \frac{n^2}{p})
+    \]
+    where $\tau$ is the latency, $\mu$ is the inverse of bandwidth, and $s$ is the sparsity that affects the number of non-zero elements communicated.
+2. Initial Alignment
+Initial alignment involves shifting matrix A and B to align them for the multiplication.
 
 ### 3. Observations
 

@@ -121,12 +121,12 @@ Each process iterates, performing multiplication and shifting matrices across th
 3.5. Iterative Shifting and Multiplication
 - Shift Matrix A: Left by one step in the Cartesian grid.
 - Shift Matrix B: Up by one step in the Cartesian grid.
-- The complexity for each shift involves `MPI_Sendrecv`` operations and local computation for dot product:
-$O\left((p-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
-    This continues for $p-1$ steps (assuming the worst-case where each process needs to receive data from every other process directly or indirectly).
+- The complexity for each shift involves `MPI_Sendrecv` operations and local computation for dot product:
+$O\left((\sqrt{p}-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
+    This continues for $\sqrt{p}-1$ steps (assuming the worst-case where each process needs to receive data from every other process directly or indirectly).
 
 The total runtime of the algorithms is:
-$O\left(\frac{n^2}{p} + \tau \log p + \mu p \log p + \frac{sn^2}{p} \log \frac{sn^2}{p} + (p-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
+$O\left(\frac{n^2}{p} + \tau \log p + \mu p \log p + \frac{sn^2}{p} \log \frac{sn^2}{p} + (\sqrt{p}-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
 
 ### 4. Observations
 #### Communication:
@@ -143,7 +143,7 @@ $O\left(\frac{n^2}{p} + \tau \log p + \mu p \log p + \frac{sn^2}{p} \log \frac{s
 - The overhead related to data transfers is reduced by using a 2D Cartesian grid and preset communication patterns (as opposed to dynamic data requests). The communication cost is maximized since every process is aware of the precise location and time of data transmission and reception.
 
 #### Observation and Conclusion
-- The Bonus Algorithm performs better than George's at all tested sparsity levels, with the performance gap growing noticeably as the sparsity decreases, according to a comparative analysis between the two algorithms across a range of sparsity levels. In particular, the Bonus Algorithm continues to have a discernible advantage at higher sparsities (e.g., e=0.1), even though both algorithms encounter longer computation times as a result of the increased number of non-zero elements. This benefit is significantly increased at lower sparsity levels (e.g., e=0.001 and 𝑒=0.01), where the Bonus Algorithm can handle sparse matrices far faster than George's Algorithm due to its efficiency in handling computation and communication. The trend suggests that the Bonus Algorithm can be up to multiple times faster, especially in settings where matrix sparsity plays a major role in efficiency and computational overhead.
+- The Bonus Algorithm performs better than George's at all tested sparsity levels, with the performance gap growing noticeably as the sparsity decreases, according to a comparative analysis between the two algorithms across a range of sparsity levels. In particular, the Bonus Algorithm continues to have a discernible advantage at higher sparsities (e.g., e=0.1), even though both algorithms encounter longer computation times as a result of the increased number of non-zero elements. This benefit is significantly increased at lower sparsity levels (e.g., e=0.001 and e=0.01), where the Bonus Algorithm can handle sparse matrices far faster than George's Algorithm due to its efficiency in handling computation and communication. The trend suggests that the Bonus Algorithm can be up to multiple times faster, especially in settings where matrix sparsity plays a major role in efficiency and computational overhead.
 ## Contributions of each team member
 | Team member | Contribution |
 | :------------------: | :----------: |

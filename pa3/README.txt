@@ -33,8 +33,8 @@ Nodes:         atl1-1-02-003-19-[1-2],atl1-1-02-003-20-1
 
 3.1 Compilation
 
-
+To compile the bonus algorithm, cd into the bonus folder and type make, which will create an executable called bonus. It has the same command line arguments as the George's algorithm and you can test it with the same command line input like `mpirun -np 4 ./bonus 10000 0.001 0 bonus_out`. Please notice that the number of processors must be a squared number in our implementation.
 
 3.2 Workflow of our algorithm
 
-To 
+We follow the Cannon's algorithm to perform the 2D partitioning of the matrix, which include alignent and compute-and-shift phase. The only difference between our algorithm and dense matrix-matrix multiplication is that we utilize George's representation of a sparse matrix. We only transfer non-zero entry in alignment and compute-and-shift phases.

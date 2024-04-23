@@ -130,6 +130,19 @@ $O\left((p-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
 The total runtime of the algorithms is:
 $O\left(\frac{n^2}{p} + \tau \log p + \mu p \log p + \frac{sn^2}{p} \log \frac{sn^2}{p} + (p-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
 ### 3. Observations
+Communication:
+- George's Algorithm: Employs a simple method to align data across processes by distributing matrices among processors in an undefined structure. Since data must be requested dynamically depending on computation requirements, this initial misalignment may result in increased communication overhead during the multiplication phase.
+  
+- Bonus Algorithm: Uses a two-dimensional Cartesian grid to arrange data and processes. Data locality and predictable communication patterns are made possible by this structured distribution. It minimizes the amount of data communicated during the computational phase by aligning matrices prior to multiplication.
+
+Matrix Multiplication:
+- George's Algorithm: Multiplies without first aligning the matrices, which could result in delays for each processor as it may need to wait for data from other processors if it is not locally available.
+- Bonus Algorithm: Makes use of an initial alignment step to guarantee that, prior to the multiplication, each processor has the required submatrices. By doing this, runtime delays brought on by waiting for data during the multiplication stage are decreased.
+
+Why the bonus algorithm is faster?
+-The overhead related to data transfers is reduced by using a 2D Cartesian grid and preset communication patterns (as opposed to dynamic data requests). The communication cost is maximized since every process is aware of the precise location and time of data transmission and reception.
+
+Observation and Conclusion
 
 ## Contributions of each team member
 | Team member | Contribution |

@@ -91,20 +91,44 @@ Finally, the empirical analysis verifies the efficiency and robust scalability o
 (compare with George's algo. Our bonus algo implementation only supports when $p$ is a squared number)
 
 ### 2. Runtime analysis
+The frist several steps are similar to the George's algorithm described above.
 1. Generate Sparse Matrices A and B
 -Each processor generates its portion of the sparse matrices. Given the matrix size $n$ divided among the processors in a 2D grid:
-
-$O(\frac{n^2}{p})
+ 
+$O(\frac{n^2}{p})￥
 where $p$ is the number of processors and the matrices are $n \times n$.
 
 - Each process sends and receives data for matrix alignment using MPI\_Sendrecv. The complexity involves:
 
-    $O(communication cost) = O(\tau + \mu \cdot s \cdot \frac{n^2}{p})
+    $O(communication cost) = O(\tau + \mu \cdot s \cdot \frac{n^2}{p})￥
  
     where $\tau$ is the latency, $\mu$ is the inverse of bandwidth, and $s$ is the sparsity that affects the number of non-zero elements communicated.
 2. Initial Alignment
 Initial alignment involves shifting matrix A and B to align them for the multiplication.
 
+- Each process sends and receives data for matrix alignment using ￥\MPI\_Sendrecv￥. The complexity involves:
+    $O(\text{communication cost}) = O(\tau + \mu \cdot s \cdot \frac{n^2}{p})$
+    where $\tau$ is the latency, $\mu$ is the inverse of bandwidth, and $s$ is the sparsity that affects the number of non-zero elements communicated.
+
+3. Sorting
+   -Both matrices are sorted in preparation for multiplication.
+$O\left(\frac{sn^2}{p} \log \frac{sn^2}{p}\right)$
+This is assuming sorting is done locally on each process with the complexity based on the sparsity and the size of the local matrix slice.
+
+4. Matrix Multiplication in a Shifted Grid
+-The main computation involves multiplying portions of matrices A and B that each process holds after alignment and communication:
+$O\left(\frac{sn^2}{p}\right)$
+Each process iterates, performing multiplication and shifting matrices across the Cartesian topology.
+
+5. Iterative Shifting and Multiplication
+-Shift Matrix A: Left by one step in the Cartesian grid.
+-Shift Matrix B: Up by one step in the Cartesian grid.
+-The complexity for each shift involves $MPI\_Sendrecv$ operations and local computation for dot product:
+$O\left((p-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
+    This continues for $p-1$ steps (assuming the worst-case where each process needs to receive data from every other process directly or indirectly).
+
+The total runtime of the algorithms is:
+$O\left(\frac{n^2}{p} + \tau \log p + \mu p \log p + \frac{sn^2}{p} \log \frac{sn^2}{p} + (p-1) \cdot (\tau + \mu \cdot \frac{sn^2}{p} + \frac{sn^2}{p})\right)$
 ### 3. Observations
 
 ## Contributions of each team member

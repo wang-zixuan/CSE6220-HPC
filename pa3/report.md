@@ -82,9 +82,9 @@ Finally, the empirical analysis verifies the efficiency and robust scalability o
 
 ## Bonus algorithm (we also use `-O3` to optimize the compilation)
 
-### 1. Plot
-#### 1. Plot for: $p=16, e=0.01,$ three different $n$
+### 1. Plot for: $p=16, e=0.01,$ three different $n$
 ![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/aa374e68-7833-455f-8e0b-7543ca730108)
+
 ### 2. Plot for: fix $n \geq 10000$ and change $e=0.1, 0.01, 0.001$ using $p=4,16$
 ![image](https://github.com/wang-zixuan/CSE6220-HPC/assets/99767753/e9a13a5a-d92f-4e40-adb1-65870e1859ed)
 
